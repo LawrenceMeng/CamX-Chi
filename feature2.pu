@@ -1,0 +1,209 @@
+@startuml
+!define LIGHTORANGE // 更换这个值就能换 主题
+!includeurl https://raw.githubusercontent.com/Drakemor/RedDress-PlantUML/master/style.puml
+
+participant chxextensionmodule.cpp
+participant chifeature2wrapper.cpp
+participant chxadvancedcamerausecase.cpp
+participant chxusecaseutils.cpp
+participant chxsensorselectmode.cpp
+
+chxextensionmodule.cpp -> chxextensionmodule.cpp:InitializeOverrideSession()
+activate chxextensionmodule.cpp
+chxextensionmodule.cpp -> chxextensionmodule.cpp:GetMatchingUsecase()
+chxextensionmodule.cpp -> chxusecaseutils.cpp:UsecaseFactory::CreateUscaseObject()
+chxusecaseutils.cpp ->chxadvancedcamerausecase.cpp:AdvacedCameraUsecase::Create()
+chxadvancedcamerausecase.cpp -> chxadvancedcamerausecase.cpp:Initialize()
+activate chxadvancedcamerausecase.cpp
+chxadvancedcamerausecase.cpp -> chxadvancedcamerausecase.cpp:GetXMLUsecaseByName()
+chxadvancedcamerausecase.cpp -> chxadvancedcamerausecase.cpp:CreateMetadataManager()
+chxadvancedcamerausecase.cpp -> chxadvancedcamerausecase.cpp:SelectFeatures()
+activate chxadvancedcamerausecase.cpp
+chxadvancedcamerausecase.cpp -> chifeature2wrapper.cpp:Create()
+chifeature2wrapper.cpp -->chxadvancedcamerausecase.cpp
+deactivate chxadvancedcamerausecase.cpp
+chxadvancedcamerausecase.cpp -> chxadvancedcamerausecase.cpp:SelectUsecaseConfig()
+chxadvancedcamerausecase.cpp -> chxadvancedcamerausecase.cpp:ConfigureStream()
+activate chxadvancedcamerausecase.cpp
+chxadvancedcamerausecase.cpp -> chxusecaseutils.cpp:getSensorDimension()
+activate chxusecaseutils.cpp
+chxusecaseutils.cpp->chxsensorselectmode.cpp:FindBestSensorMode()
+activate chxsensorselectmode.cpp
+chxsensorselectmode.cpp -> chxsensorselectmode.cpp:SelectUsecase()
+chxsensorselectmode.cpp-->chxusecaseutils.cpp
+deactivate chxsensorselectmode.cpp
+chxusecaseutils.cpp --> chxadvancedcamerausecase.cpp
+deactivate chxusecaseutils.cpp
+deactivate chxadvancedcamerausecase.cpp
+
+chxadvancedcamerausecase.cpp -> chxadvancedcamerausecase.cpp: CameraUsecase::Initialize()
+activate chxadvancedcamerausecase.cpp
+chxadvancedcamerausecase.cpp -> chxmetadata.cpp:InitlizeFrameworkInputClient()
+chxmetadata.cpp -->chxadvancedcamerausecase.cpp
+deactivate chxadvancedcamerausecase.cpp
+chxadvancedcamerausecase.cpp ->chxadvancedcamerausecase.cpp:PostUsecaseCreation()
+activate chxadvancedcamerausecase.cpp
+chxadvancedcamerausecase.cpp -> chifeature2wrapper.cpp:PostUsecaseCreated()
+activate chifeature2wrapper.cpp
+chifeature2wrapper.cpp -> chifeature2wrapper.cpp:CreateFeatureGraphManager()
+activate chifeature2wrapper.cpp
+chifeature2wrapper.cpp -> chifeature2graphmanager.cpp:Create()
+chifeature2graphmanager.cpp ->chifeature2graphmanager.cpp:Initialize()
+activate chifeature2graphmanager.cpp
+chifeature2graphmanager.cpp -> chifeature2graphmanager.cpp:CreateFeatureGraphSelector()
+activate chifeature2graphmanager.cpp
+chifeature2graphmanager.cpp ->chifeature2graphmanager.cpp:LoadFeatureGraphSelectorOps()
+chifeature2graphmanager.cpp -> chifeature2grapselector.cpp:ChiFeature2GraphSelectorOpsEntry()
+chifeature2grapselector.cpp --> chifeature2graphmanager.cpp
+chifeature2graphmanager.cpp -> chifeature2grapselector.cpp:pCreate()=CreateFeatureGraphSelector()
+chifeature2grapselector.cpp -> chifeature2grapselectoroem.cpp:CreateFeatureGraphSelector()
+chifeature2grapselectoroem.cpp -> chifeature2grapselectoroem.cpp:PopulateAllTablesOEM()
+activate chifeature2grapselectoroem.cpp
+chifeature2grapselectoroem.cpp ->chifeature2grapselectoroem.cpp:BuildCameraIdSet()
+chifeature2grapselectoroem.cpp -> chifeature2grapselectoroem.cpp:PopulateAllTablesOEM()
+chifeature2grapselectoroem.cpp -> chifeature2grapselector.cpp:PopulateAllTables()
+chifeature2grapselector.cpp --> chifeature2grapselectoroem.cpp
+deactivate chifeature2grapselectoroem.cpp
+chifeature2grapselectoroem.cpp -> chifeature2grapselector.cpp: Initialize()
+activate chifeature2grapselector.cpp
+chifeature2grapselector.cpp -> chifeature2grapselector.cpp: AssignStreamIntentPerFwkSteam()
+chifeature2grapselector.cpp --> chifeature2grapselectoroem.cpp
+deactivate chifeature2grapselector.cpp
+chifeature2grapselectoroem.cpp -->chifeature2grapselector.cpp
+chifeature2grapselector.cpp --> chifeature2graphmanager.cpp
+deactivate chifeature2graphmanager.cpp
+chifeature2graphmanager.cpp->chifeature2featurepool.cpp:Create()
+activate chifeature2featurepool.cpp
+chifeature2featurepool.cpp ->chifeature2featurepool.cpp:Initialize()
+chifeature2featurepool.cpp ->chifeature2featurepool.cpp:ProbeChiFeature2Features()
+deactivate chifeature2featurepool.cpp
+chifeature2featurepool.cpp --> chifeature2graphmanager.cpp
+chifeature2graphmanager.cpp -> chifeature2threadmanager.cpp:Create()
+activate chifeature2threadmanager.cpp
+chifeature2threadmanager.cpp -> chifeature2threadmanager.cpp:Initialize()
+deactivate chifeature2threadmanager.cpp
+chifeature2threadmanager.cpp -->chifeature2graphmanager.cpp
+chifeature2graphmanager.cpp -> chifeature2grapselector.cpp:pGetFGDListForConfig()=GetFeatureGraphMapforconfig()
+activate chifeature2grapselector.cpp
+chifeature2grapselector.cpp -> chifeature2grapselector.cpp:GetAllFeatureGraphDescriptors()
+activate chifeature2grapselector.cpp
+chifeature2grapselector.cpp -> chifeature2grapselector.cpp:IsSkipFeatureGraph()
+deactivate chifeature2grapselector.cpp
+chifeature2grapselector.cpp -->chifeature2graphmanager.cpp
+deactivate chifeature2grapselector.cpp
+chifeature2graphmanager.cpp -> chifeature2featurepool.cpp:CreateFeatureInstances()
+activate chifeature2featurepool.cpp
+loop feature in features
+    chifeature2featurepool.cpp -> chifeature2featurepool.cpp:DoStramNegotiation()
+    note right
+    这里发生函数指针调用，指向当前feature2（比如realtime）的DoStreamNegotiation()
+        CDK_VISIBULITY_PUBLIC VOID ChiFeature2OpsEntry(
+            CHIFEATURE2OPS* pChiFeature2Ops)
+        {
+            if(NULL != pChiFeature2Ops)
+            {
+                pChiFeature2Ops->size               = sizeof(CHIFEATURE2OPS);
+                pChiFeature2Ops->majorVersion       = Feature2MajorVersion;
+                pChiFeature2Ops->minorVersion       = Feature2MinorVersion;
+                pChiFeature2Ops->pCreate            = CreateFeature;
+                pChiFeature2Ops->pQueryCaps         = DoQueryCaps;
+                pChiFeature2Ops->pGetVendorTags     = GetVendorTags;
+                pChiFeature2Ops->pStreamNegotiation = DoStreamNegotiation;
+            }
+        }
+    end note
+
+    chifeature2featurepool.cpp -> chifeature2realtime.cpp: DoStreamNegontiation()
+    chifeature2realtime.cpp -> chifeature2utils.cpp: GetSensorOutputDimension()
+    chifeature2utils.cpp -->chifeature2realtime.cpp
+    chifeature2realtime.cpp --> chifeature2featurepool.cpp
+    chifeature2featurepool.cpp -->chifeature2graphmanager.cpp
+    chifeature2graphmanager.cpp --> chifeature2featurepool.cpp:DoFeatureCreate()
+    note right
+        --注释--
+        这里发生函数指针调用，指向当前feature2（比如realtime）的CreateFeature()
+        CDK_VISIBULITY_PUBLIC VOID ChiFeature2OpsEntry(
+            CHIFEATURE2OPS* pChiFeature2Ops)
+        {
+            if(NULL != pChiFeature2Ops)
+            {
+                pChiFeature2Ops->size               = sizeof(CHIFEATURE2OPS);
+                pChiFeature2Ops->majorVersion       = Feature2MajorVersion;
+                pChiFeature2Ops->minorVersion       = Feature2MinorVersion;
+                pChiFeature2Ops->pCreate            = CreateFeature;
+                pChiFeature2Ops->pQueryCaps         = DoQueryCaps;
+                pChiFeature2Ops->pGetVendorTags     = GetVendorTags;
+                pChiFeature2Ops->pStreamNegotiation = DoStreamNegotiation;
+            }
+        }
+    end note
+    chifeature2featurepool.cpp ->chifeature2realtime.cpp:CreateFeature()
+    activate chifeature2realtime.cpp
+    chifeature2realtime.cpp -> chifeature2realtime.cpp:Create()
+    chifeature2realtime.cpp -> chifeature2base.cpp:Initialize()
+    chifeature2base.cpp -> chifeature2base.cpp:ClassifyStream()
+    chifeature2base.cpp --> chifeature2realtime.cpp
+    chifeature2realtime.cpp --> chifeature2featurepool.cpp
+end
+chifeature2featurepool.cpp --> chifeature2graphmanager.cpp
+chifeature2graphmanager.cpp -> chifeature2graphmanager.cpp:FinalizeFeatureInstances()
+activate chifeature2graphmanager.cpp
+chifeature2graphmanager.cpp -> chifeature2base.cpp:ConfigureFeature()
+chifeature2base.cpp -> chifeature2base.cpp:PrepareFeatureData()
+chifeature2base.cpp -> chifeature2base.cpp:OnInitialize()
+chifeature2base.cpp -> chifeature2base.cpp:CreatePipeline()
+
+
+
+
+
+chifeature2graphmanager.cpp --> chifeature2wrapper.cpp
+deactivate chifeature2wrapper.cpp
+chifeature2wrapper.cpp ->chifeature2wrapper.cpp:CreateTargetBufferManagers()
+
+
+
+
+
+deactivate chifeature2featurepool.cpp
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+deactivate chxusecaseutils.cpp
+
+
+
+
+
+
+
+
+
+
+
+
+deactivate chxextensionmodule.cpp
+
+@enduml

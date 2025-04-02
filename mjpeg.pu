@@ -1,0 +1,110 @@
+@startuml
+!define LIGHTORANGE // 更换这个值就能换 主题
+!includeurl https://raw.githubusercontent.com/Drakemor/RedDress-PlantUML/master/style.puml
+participant chxextensionmodule.cpp
+participant chxsensormodeselectmode.cpp
+participant chxusecaseutils.cpp
+participant chxadvancedcamerausecase.cpp
+participant chxusecase.cpp
+participant chxmetadata.cpp
+participant chifeature2wrapper.cpp
+participant chxextensionmodule.cpp
+participant chifeature2graphmanager.cpp
+participant chifeature2graphselector.cpp
+
+chxextensionmodule.cpp->chxextensionmodule.cpp:InitializeOverrideSession()
+activate chxextensionmodule.cpp
+chxextensionmodule.cpp->chxusecaseutils.cpp:GetMatchingUsecase()
+chxusecaseutils.cpp-->chxextensionmodule.cpp
+chxextensionmodule.cpp->chxusecaseutils.cpp:CreateUsecaseObject()
+deactivate chxextensionmodule.cpp
+chxusecaseutils.cpp -> chxadvancedcamerausecase.cpp:Create()
+activate chxadvancedcamerausecase.cpp
+chxadvancedcamerausecase.cpp -> chxadvancedcamerausecase.cpp:AdvancedCameraUsecase::Initialize()
+activate chxadvancedcamerausecase.cpp
+chxadvancedcamerausecase.cpp -> chxadvancedcamerausecase.cpp:GetXMLUsecaseByName()
+note right
+这里开始讨论不支持feature2的各种情况，并将标志位变量isFeature2Supported置为false。
+当前UVCMJPEG不支持feature2，故要使能，需要注释掉如下代码
+if((True == ExtensionModule::GetInstance()->EnableAIDirector()) &&
+(HAL_PIXEL_FORMAT_BLOB == pStreamConfig->streams[stream]->format)&&
+(pStreamConfig->num_streams == 1)) {
+    isFeature2Supported = False;
+}
+
+如果最后isFeature2Supported == True, 那么就有可能选中Usecase::Feature2.
+end note
+chxadvancedcamerausecase.cpp->chxusecase.cpp:CreateMetaManager()
+chxusecase.cpp -> chxmetadata.cpp:ChiMetadataManager::Create()
+chxmetadata.cpp -> chxmetadata.cpp:ChiMetadataManager::Initilize()
+note right
+metadata这部分没仔细看，留着以后更新。
+end note
+chxmetadata.cpp -->chxusecase.cpp
+chxusecase.cpp --> chxadvancedcamerausecase.cpp
+chxadvancedcamerausecase.cpp -> chxadvancedcamerausecase.cpp:SelectFeatures()
+note right
+如果选中Feature2会做SelectFeatures()。
+end note
+activate chxadvancedcamerausecase.cpp
+chxadvancedcamerausecase.cpp->chifeature2wrapper.cpp:Feature2Wrapper::Create()
+chifeature2wrapper.cpp -> chifeature2wrapper.cpp::Feature2Wrapper::Initialize()
+chifeature2wrapper.cpp -> chxadvancedcamerausecase.cpp:return Feature2Wrapper
+deactivate chxadvancedcamerausecase.cpp
+chxadvancedcamerausecase.cpp -> chxadvancedcamerausecase.cpp:SelectUsecaseConfig()
+activate chxadvancedcamerausecase.cpp
+chxadvancedcamerausecase.cpp -> chxadvancedcamerausecase.cpp: ConfigureStream()
+activate chxadvancedcamerausecase.cpp
+chxadvancedcamerausecase.cpp -> chxusecaseutils.cpp:getSensorDimension()
+activate chxusecaseutils.cpp
+chxusecaseutils.cpp -> chxusecaseutils.cpp:GetSensorModeInfo()
+chxusecaseutils.cpp ->chxextensionmodule.cpp:GetForceSensorMode()
+chxextensionmodule.cpp --> chxusecaseutils.cpp:return forceMode
+chxusecaseutils.cpp -> chxsensormodeselectmode.cpp:FindBestSensorMode()
+activate chxsensormodeselectmode.cpp
+chxsensormodeselectmode.cpp->chxextensionmodule.cpp:GetPhysicalCameraSensorModes()
+chxextensionmodule.cpp --> chxsensormodeselectmode.cpp: returen default mode;
+note right
+/*Sensor mode 这部分先不细述。*/
+end note
+chxsensormodeselectmode.cpp -> chxsensormodeselectmode.cpp:SelectUsecase()
+chxsensormodeselectmode.cpp --> chxusecaseutils.cpp
+chxusecaseutils.cpp --> chxadvancedcamerausecase.cpp 
+deactivate chxusecaseutils.cpp
+deactivate chxadvancedcamerausecase.cpp
+
+chxadvancedcamerausecase.cpp -> chxadvancedcamerausecase.cpp:BuidUsecase()
+chxadvancedcamerausecase.cpp -> chxadvancedcamerausecase.cpp
+deactivate chxadvancedcamerausecase.cpp
+
+chxadvancedcamerausecase.cpp -> chxadvancedcamerausecase.cpp:CameraUsecaseBase::Initialize()
+deactivate chxadvancedcamerausecase.cpp
+chxadvancedcamerausecase.cpp -> chxmetadata.cpp:InitializeFrameworkInputClient()
+chxmetadata.cpp -> chxmetadata.cpp: AllocateBuffers()
+chxmetadata.cpp --> chxadvancedcamerausecase.cpp
+chxadvancedcamerausecase.cpp -> chxadvancedcamerausecase.cpp:PostUsecaseCreation()
+activate chxadvancedcamerausecase.cpp
+chxadvancedcamerausecase.cpp -> chifeature2wrapper.cpp:PostUsecaseCreated()
+chifeature2wrapper.cpp -> chifeature2wrapper.cpp:CreateFeatureGraphManager()
+activate chifeature2wrapper.cpp
+chifeature2wrapper.cpp -> chifeature2graphmanager.cpp:Create()
+activate chifeature2graphmanager.cpp 
+chifeature2graphmanager.cpp -> chifeature2graphmanager.cpp:Initialize()
+chifeature2graphmanager.cpp -> chifeature2graphmanager.cpp:CreateFeatureGraphSelector()
+chifeature2graphmanager.cpp -> chifeature2graphmanager.cpp:LoadFeatureGraphSelectorOps()
+note right
+LoadFeatureGraphSelectorOps() 通过加载库，得到chifeature2graphselector的句柄，然后可以通过该句柄进行操作。
+end note
+chifeature2graphmanager.cpp -> chifeature2graphselector.cpp:CreateFeatureGraphSelector()
+chifeature2graphselector.cpp --> chifeature2graphmanager.cpp
+chifeature2graphmanager.cpp -> chifeature2featurepool.cpp:Create()
+activate chifeature2featurepool.cpp
+chifeature2graphmanager.cpp -> chifeature2graphmanager.cpp:ProbeChiFeature2Features()
+
+
+
+
+
+
+
+@enduml
