@@ -11,6 +11,9 @@ participant chifeature2wrapper.cpp
 participant chxextensionmodule.cpp
 participant chifeature2graphmanager.cpp
 participant chifeature2graphselector.cpp
+participant chifeature2featurepool.cpp
+participant chithreadmanager.cpp
+participant chifeature2topologyutils.h
 
 chxextensionmodule.cpp->chxextensionmodule.cpp:InitializeOverrideSession()
 activate chxextensionmodule.cpp
@@ -69,6 +72,8 @@ note right
 end note
 chxsensormodeselectmode.cpp -> chxsensormodeselectmode.cpp:SelectUsecase()
 chxsensormodeselectmode.cpp --> chxusecaseutils.cpp
+deactivate chxsensormodeselectmode.cpp
+
 chxusecaseutils.cpp --> chxadvancedcamerausecase.cpp 
 deactivate chxusecaseutils.cpp
 deactivate chxadvancedcamerausecase.cpp
@@ -91,15 +96,81 @@ chifeature2wrapper.cpp -> chifeature2graphmanager.cpp:Create()
 activate chifeature2graphmanager.cpp 
 chifeature2graphmanager.cpp -> chifeature2graphmanager.cpp:Initialize()
 chifeature2graphmanager.cpp -> chifeature2graphmanager.cpp:CreateFeatureGraphSelector()
+activate chifeature2graphmanager.cpp
 chifeature2graphmanager.cpp -> chifeature2graphmanager.cpp:LoadFeatureGraphSelectorOps()
 note right
-LoadFeatureGraphSelectorOps() 通过加载库，得到chifeature2graphselector的句柄，然后可以通过该句柄进行操作。
+LoadFeatureGraphSelectorOps() 通过加载库，得到chifeature2graphselector的entry，然后可以通过该entry进行操作。
 end note
-chifeature2graphmanager.cpp -> chifeature2graphselector.cpp:CreateFeatureGraphSelector()
-chifeature2graphselector.cpp --> chifeature2graphmanager.cpp
+deactivate chifeature2graphmanager.cpp
+
+
 chifeature2graphmanager.cpp -> chifeature2featurepool.cpp:Create()
 activate chifeature2featurepool.cpp
-chifeature2graphmanager.cpp -> chifeature2graphmanager.cpp:ProbeChiFeature2Features()
+chifeature2featurepool.cpp -> chifeature2featurepool.cpp: Initializ()
+activate chifeature2featurepool.cpp
+chifeature2featurepool.cpp -> chifeature2featurepool.cpp:ProbeChiFeature2Features()
+deactivate chifeature2featurepool.cpp
+chifeature2featurepool.cpp --> chifeature2graphmanager.cpp
+deactivate chifeature2featurepool.cpp
+
+chifeature2graphmanager.cpp -> chithreadmanager.cpp:CHIThreadManager::Create()
+activate chithreadmanager.cpp
+chithreadmanager.cpp -> chithreadmanager.cpp:Initialize()
+activate chithreadmanager.cpp
+chithreadmanager.cpp -> chithreadmanager.cpp:StartThread()
+deactivate chithreadmanager.cpp
+chithreadmanager.cpp-->chifeature2graphmanager.cpp
+deactivate chithreadmanager.cpp
+chifeature2graphmanager.cpp -> chifeature2graphselector.cpp:GetFeatureGraphMapforConfig()
+activate chifeature2graphselector.cpp
+chifeature2graphselector.cpp -> chifeature2graphselector.cpp:GetAllFeatureGraphDescriptor()
+chifeature2graphselector.cpp --> chifeature2graphmanager.cpp
+deactivate chifeature2graphselector.cpp
+
+chifeature2graphmanager.cpp -> chifeature2topologyutils.h : CreateVirtualSuperGraph()
+chifeature2topologyutils.h --> chifeature2graphmanager.cpp: return supergraph;
+
+chifeature2graphmanager.cpp -> chifeature2featurepool.cpp:CreateFeatureInstance()
+activate chifeature2featurepool.cpp
+loop feature in features
+    chifeature2featurepool.cpp -> chifeature2featurepool.cpp:DoStreamNegoatition()
+    note right
+    在DoStreamNegoatition()过程中会调用每个feature的DoStreamNegotiation()
+    例如会调用feature: Realtime的DoStreamNegotiation()
+    仍然是通过entry实现的。
+    end note
+    chifeature2featurepool.cpp --> chifeature2realtime.cpp:DoStreamNegotiation()
+
+    chifeature2realtime.cpp ->chifeature2utils.cpp:GetSensorOutputDimension()
+    activate chifeature2utils.cpp
+    chifeature2utils.cpp ->chxusecaseutils.cpp:getSensorDimension()
+    activate chxusecaseutils.cpp
+    chxusecaseutils.cpp -> chxusecaseutils.cpp:GetSensorModeInfo()
+    chxusecaseutils.cpp -> chxsensormodeselectmode.cpp:FindBestSensorMode()
+    chxsensormodeselectmode.cpp --> chxusecaseutils.cpp
+    chxusecaseutils.cpp -->chifeature2utils.cpp
+    deactivate chxusecaseutils.cpp
+    chifeature2utils.cpp -> chifeature2realtime.cpp
+    activate chifeature2realtime.cpp
+    chifeature2realtime.cpp -> chifeature2utils.cpp:MapStreamPerFeature()
+    chifeature2realtime.cpp -> chifeature2realtime.cpp: UpdateInstancePropsInGraphDesc()
+    chifeature2realtime.cpp -> chifeature2realtime.cpp: DoFeatureCreate()
+    chifeature2realtime.cpp --> chifeature2utils.cpp
+    deactivate chifeature2utils.cpp
+    chifeature2utils.cpp --> chifeature2featurepool.cpp
+    deactivate chifeature2realtime.cpp
+end
+chifeature2featurepool.cpp -> chifeature2featurepool.cpp: DoFeatureCreate()
+activate chifeature2featurepool.cpp
+chifeature2featurepool.cpp -> chifeature2realtime.cpp:CreateFeature()
+chifeature2realtime.cpp -> chifeature2realtime.cpp:Create()
+chifeature2realtime.cpp -> chifeature2base.cpp:Initialize()
+chifeature2base.cpp --> chifeature2realtime.cpp
+chifeature2realtime.cpp --> chifeature2featurepool.cpp
+deactivate chifeature2featurepool.cpp
+chifeature2featurepool.cpp -> chifeature2featurepool.cpp:FinalizeFeatureInstnces()
+activate chifeature2featurepool.cpp
+chifeature2featurepool.cpp -> chifeature2utils.cpp:GetImageStabilizationMode()
 
 
 
