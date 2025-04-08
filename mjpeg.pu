@@ -168,12 +168,57 @@ chifeature2realtime.cpp -> chifeature2base.cpp:Initialize()
 chifeature2base.cpp --> chifeature2realtime.cpp
 chifeature2realtime.cpp --> chifeature2featurepool.cpp
 deactivate chifeature2featurepool.cpp
-chifeature2featurepool.cpp -> chifeature2featurepool.cpp:FinalizeFeatureInstnces()
+chifeature2featurepool.cpp --> chifeature2graphmanager.cpp
+deactivate chifeature2featurepool.cpp
+
+chifeature2graphmanager.cpp -> chifeature2featurepool.cpp:FinalizeFeatureInstnces()
 activate chifeature2featurepool.cpp
 chifeature2featurepool.cpp -> chifeature2utils.cpp:GetImageStabilizationMode()
+chifeature2utils.cpp --> chifeature2featurepool.cpp
 
+chifeature2featurepool.cpp -> chifeature2base.cpp:FinalizeInitialization()
+activate chifeature2base.cpp
+chifeature2base.cpp ->chifeature2base.cpp: FinalizeSessionData()
+activate chifeature2base.cpp
+chifeature2base.cpp -> chifeature2base.cpp: SyncAsyncFeatureConfig()
+activate chifeature2base.cpp
+chifeature2base.cpp -> chithreadmanager.cpp: SynchronizeBody()
+chithreadmanager.cpp --> chifeature2base.cpp
 
+chifeature2base.cpp -> chxutils.cpp: ThreadCreate() RequestThread()
+chxutils.cpp --> chifeature2base.cpp: thread()
+deactivate chifeature2base.cpp
 
+chifeature2base.cpp -> chxsession.cpp: Session::Create()
+chxsession.cpp -> chxextensionmodule.cpp: CreateSession()
+note right
+Entry g_chiContentOps.pCreateSession()实际指向camx::ChiCreateSession().
+end note
+
+chxextensionmodule.cpp -> camxchi.cpp
+camxchi.cpp ->camxchisession.cpp:Create()
+camxchisession.cpp -> camxsession.cpp:Create()
+
+camxsession.cpp --> camxchisession.cpp
+camxchisession.cpp --> camxchi.cpp
+camxchi.cpp --> chxextensionmodule.cpp
+
+chxextensionmodule.cpp --> chxsession.cpp
+chxsession.cpp --> chifeature2base.cpp
+
+chifeature2base.cpp --> chifeature2graphmanager.cpp
+chifeature2graphmanager.cpp --> chifeature2wrapper.cpp
+deactivate chifeature2graphmanager.cpp
+chifeature2wrapper.cpp --> chxadvancedcamerausecase.cpp
+deactivate chifeature2wrapper.cpp
+deactivate chxadvancedcamerausecase.cpp
+
+chxadvancedcamerausecase.cpp --> chxextensionmodule.cpp
+deactivate chxadvancedcamerausecase.cpp
+
+note right
+执行完createUsecaseObject()后执行CofigureStream();
+end note
 
 
 
